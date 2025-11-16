@@ -1,89 +1,78 @@
 // src/components/ProductForm.jsx
 import React, { useState } from 'react';
 
-const initialFormData = {
-  image: '',
-  name: '',
-  category: '',
-  description: '',
-  specification: '',
-  rating: '',
-  price: '',
-  quantity: '',
-};
-
 function ProductForm({ onAddProduct }) {
-  const [formData, setFormData] = useState(initialFormData);
-  const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setError('');
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
+  const [specification, setSpecification] = useState('');
+  const [rating, setRating] = useState(0);
+  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+  const [image, setImage] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const requiredFields = ['name', 'category', 'price', 'quantity'];
-    const missingField = requiredFields.find(field => !formData[field]);
-
-    if (missingField) {
-      setError(`🛑 Error: Please fill in the required field: ${missingField}`);
-      return; 
+    
+    // Simple validation
+    if (!name || !category || price <= 0 || quantity < 0) {
+      alert("Please fill out all required fields (Name, Category, Price, Quantity).");
+      return;
     }
 
     const newProduct = {
-      id: Date.now(),
-      ...formData,
-      rating: parseFloat(formData.rating) || 0,
-      price: parseFloat(formData.price),
-      quantity: parseInt(formData.quantity, 10),
+      id: Date.now(), // Use timestamp for unique ID
+      image: image || 'https://via.placeholder.com/300x200?text=No+Image', // Default placeholder
+      name,
+      category,
+      description,
+      specification,
+      rating: parseFloat(rating),
+      price: parseFloat(price),
+      quantity: parseInt(quantity, 10),
     };
 
-    onAddProduct(newProduct); 
+    onAddProduct(newProduct);
 
-    setFormData(initialFormData);
-    setError(''); 
+    // Reset form
+    setName('');
+    setCategory('');
+    setDescription('');
+    setSpecification('');
+    setRating(0);
+    setPrice(0);
+    setQuantity(0);
+    setImage('');
   };
 
   return (
-    <div className="form-container">
-      <h3>➕ Add New Product</h3>
-      <form onSubmit={handleSubmit}>
+    <div className="product-form-container" style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '30px' }}>
+      <h3> Add New Product</h3>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
         
-        <label>Product Name (Required)</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} />
+        {/* Row 1 */}
+        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <input type="text" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} required />
+        
+        {/* Row 2 */}
+        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} style={{ gridColumn: 'span 2' }} />
+        
+        {/* Row 3 */}
+        <input type="text" placeholder="Specification" value={specification} onChange={(e) => setSpecification(e.target.value)} />
+        <input type="text" placeholder="Image URL (optional)" value={image} onChange={(e) => setImage(e.target.value)} />
+        
+        {/* Row 4 */}
+        <input type="number" placeholder="Rating (0-5)" value={rating} onChange={(e) => setRating(e.target.value)} min="0" max="5" step="0.1" />
+        <input type="number" placeholder="Price (₱)" value={price} onChange={(e) => setPrice(e.target.value)} min="0" step="0.01" required />
+        
+        {/* Row 5 */}
+        <input type="number" placeholder="Quantity in Stock" value={quantity} onChange={(e) => setQuantity(e.target.value)} min="0" required />
 
-        <label>Category (Required)</label>
-        <input type="text" name="category" value={formData.category} onChange={handleChange} />
-        
-        <label>Price (₱) (Required)</label>
-        <input type="number" name="price" value={formData.price} onChange={handleChange} min="0.01" step="0.01" />
-        
-        <label>Quantity (Required)</label>
-        <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} min="1" />
-        
-        <label>Feature Image URL</label>
-        <input type="text" name="image" value={formData.image} onChange={handleChange} />
-        
-        <label>Description</label>
-        <textarea name="description" value={formData.description} onChange={handleChange} />
-        
-        <label>Specification</label>
-        <input type="text" name="specification" value={formData.specification} onChange={handleChange} />
-
-        <label>Rating (1-5)</label>
-        <input type="number" name="rating" value={formData.rating} onChange={handleChange} min="1" max="5" step="0.1" />
-
-        {error && <p style={{ color: 'red', padding: '10px', border: '1px solid red' }}>{error}</p>}
-        
-        <button type="submit">🚀 Add Product</button>
+        {/* Submit */}
+        <button type="submit" style={{ gridColumn: 'span 2', backgroundColor: '#007bff', color: 'white', padding: '10px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          Create Product
+        </button>
       </form>
-      <hr />
     </div>
   );
 }

@@ -1,13 +1,24 @@
 // src/components/ProductDetail.jsx
-import React from 'react';
+import React, { useState } from 'react'; 
 import { useParams, Link } from 'react-router-dom';
 
-function ProductDetail({ products }) {
+function ProductDetail({ products, onAddToCart }) {
+  const [notifCount, setNotifCount] = useState(0); 
   const { productId } = useParams();
   
-  // FIX: Converts string ID from URL to a number for comparison
   const product = products.find(p => p.id === parseInt(productId, 10));
   const currencySymbol = '₱'; 
+
+  const handleCartClick = (product) => {
+    onAddToCart(product);
+    setNotifCount(prevCount => prevCount + 1); // Increase the notification count
+    
+    // Reset the notification count after 1.5 seconds
+    setTimeout(() => {
+        setNotifCount(0);
+    }, 1500); 
+  };
+
 
   if (!product) {
     return (
@@ -43,9 +54,31 @@ function ProductDetail({ products }) {
           <h4>Product Specification</h4>
           <p>{product.specification}</p>
           
-          <button style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '15px' }}>
-            🛒 Add to Cart
-          </button>
+          <div style={{ position: 'relative', display: 'inline-block' }}> 
+            <button 
+              onClick={() => handleCartClick(product)}
+              style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', marginTop: '15px' }}
+            >
+               Add to Cart
+            </button>
+            
+            {/* NOTIFICATION BADGE */}
+            {notifCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '5px', 
+                right: '-10px',
+                backgroundColor: 'red',
+                color: 'white',
+                borderRadius: '50%',
+                padding: '2px 7px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+              }}>
+                +{notifCount}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
